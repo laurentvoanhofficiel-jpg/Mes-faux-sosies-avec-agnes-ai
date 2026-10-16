@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copie Parfaite</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d0d10;color:#e8e8ec;padding:1rem 1rem 5rem;line-height:1.5;font-size:14px;min-height:100vh}
+.wrap{max-width:1280px;margin:0 auto}
+header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #26262e}
+h1{font-size:1.6rem;font-weight:500;color:#fff;margin-bottom:.25rem}
+.sub{color:#7a7a88;font-size:.82rem}
+.card{background:#14141a;border:1px solid #26262e;border-radius:10px;padding:1rem;margin-bottom:1rem}
+.card h2{font-size:.72rem;font-weight:700;color:#7a7a88;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+label{display:block;font-size:.72rem;color:#7a7a88;margin-bottom:.35rem;font-weight:500}
+textarea,input,select{width:100%;background:#0d0d10;border:1px solid #30303a;border-radius:6px;padding:.65rem .8rem;color:#e8e8ec;font-size:.85rem;font-family:inherit;outline:none;transition:.15s}
+textarea:focus,input:focus,select:focus{border-color:#5b8def;box-shadow:0 0 0 3px rgba(91,141,239,.15)}
+textarea{min-height:80px;resize:vertical;line-height:1.5;font-family:ui-monospace,monospace;font-size:.78rem}
+button{background:#1c1c24;border:1px solid #30303a;border-radius:6px;color:#e8e8ec;padding:.7rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+button:hover:not(:disabled){background:#26262e;border-color:#45454f}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:#5b8def;border-color:#5b8def;color:#fff}
+button.primary:hover:not(:disabled){background:#4a7de0}
+button.success{background:#10b981;border-color:#10b981;color:#fff}
+button.success:hover:not(:disabled){background:#0d9970}
+button.danger{background:#3a1a1a;border-color:#5a2828;color:#f0a0a0}
+button.danger:hover:not(:disabled){background:#4a2020}
+button.full{width:100%}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+.row>*{flex:1;min-width:140px}
+.hidden{display:none!important}
+.status{padding:.6rem .8rem;border-radius:6px;font-size:.78rem;margin-top:.6rem;background:#1c1c24;border:1px solid #30303a;color:#a0a0aa;display:flex;align-items:center;gap:.5rem;line-height:1.4}
+.status.ok{background:#0a2418;border-color:#166534;color:#86efac}
+.status.err{background:#2a0e0e;border-color:#5a1a1a;color:#fca5a5}
+.status.warn{background:#2a1e08;border-color:#5a3f10;color:#fcd34d}
+.status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.7}
+.status .spinner{width:12px;height:12px;border:2px solid rgba(255,255,255,.15);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hint{font-size:.7rem;color:#666670;margin-top:.4rem;line-height:1.5}
+.progress{height:6px;background:#1c1c24;border-radius:3px;overflow:hidden;margin-top:.75rem}
+.progress .fill{height:100%;background:linear-gradient(90deg,#5b8def,#a78bfa);width:0;transition:width .3s;border-radius:3px}
+.meta{display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.72rem;color:#7a7a88;margin-top:.5rem;font-family:ui-monospace,monospace}
+.meta strong{color:#e8e8ec}
+.grid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.grid{grid-template-columns:1fr 1fr 1fr}}
+@media(min-width:1400px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+.item{background:#14141a;border:2px solid #26262e;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:.15s;position:relative}
+.item.winner{border-color:#5b8def;box-shadow:0 0 0 3px rgba(91,141,239,.3)}
+.item.winner::before{content:'✓ GAGNANTE';position:absolute;top:8px;left:8px;background:#5b8def;color:#fff;font-size:.6rem;font-weight:800;padding:.25rem .55rem;border-radius:4px;z-index:3;letter-spacing:.08em}
+.item img{width:100%;aspect-ratio:1;object-fit:contain;background:#000;display:block}
+.item .placeholder{width:100%;aspect-ratio:1;background:#0d0d10;display:flex;align-items:center;justify-content:center;color:#444;font-size:.78rem;flex-direction:column;gap:.5rem}
+.item .placeholder .spinner{width:24px;height:24px;border:3px solid rgba(91,141,239,.2);border-top-color:#5b8def;border-radius:50%;animation:spin .8s linear infinite}
+.item-body{padding:.7rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.item-label{font-size:.82rem;font-weight:700;color:#fff}
+.item-focus{font-size:.7rem;color:#a78bfa;font-style:italic}
+.item-score{font-size:.7rem;font-family:ui-monospace,monospace;color:#7a7a88;background:#0d0d10;padding:.35rem .5rem;border-radius:4px;border:1px solid #26262e}
+.item-score strong{color:#5b8def}
+.sep{height:1px;background:#26262e;margin:.15rem 0}
+.eval-title{font-size:.68rem;color:#7a7a88;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin:.2rem 0}
+.score-row{display:flex;align-items:center;gap:.5rem;font-size:.7rem}
+.score-row>label{width:82px;color:#9090a0;margin:0;font-size:.7rem;flex-shrink:0}
+.score-row input[type=range]{flex:1;height:6px;-webkit-appearance:none;appearance:none;background:#30303a;border-radius:3px;outline:none;padding:0}
+.score-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#5b8def;border-radius:50%;cursor:pointer;border:2px solid #0d0d10}
+.score-row input[type=range]::-moz-range-thumb{width:16px;height:16px;background:#5b8def;border-radius:50%;cursor:pointer;border:2px solid #0d0d10}
+.score-val{font-family:ui-monospace,monospace;color:#5b8def;width:26px;text-align:right;font-size:.72rem;font-weight:700;flex-shrink:0}
+.flags{display:flex;flex-wrap:wrap;gap:.3rem}
+.flag{font-size:.66rem;padding:.25rem .5rem;border:1px solid #30303a;border-radius:4px;cursor:pointer;user-select:none;color:#9090a0;transition:.15s;background:#1c1c24}
+.flag:hover{border-color:#45454f;color:#e8e8ec}
+.flag.active{background:#5b8def;border-color:#5b8def;color:#fff}
+.flag-group{margin-top:.2rem}
+.flag-group-title{font-size:.62rem;color:#5a5a68;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;font-weight:700}
+.win-btn{margin-top:.4rem;background:#1c1c24;border:1px solid #30303a;color:#e8e8ec;padding:.6rem;font-size:.75rem;font-weight:700;border-radius:6px;cursor:pointer;transition:.15s;letter-spacing:.04em}
+.win-btn:hover{background:#26262e;border-color:#5b8def}
+.item.winner .win-btn{background:#5b8def;border-color:#5b8def;color:#fff}
+.console{position:fixed;bottom:0;left:0;right:0;background:#0a0a0e;border-top:1px solid #26262e;z-index:100;font-family:ui-monospace,monospace}
+.console-head{padding:.5rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-size:.72rem;color:#7a7a88;background:#14141a;gap:.5rem}
+.console-head:hover{color:#e8e8ec}
+.console-head .latest{color:#5b8def;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left;padding-left:.5rem}
+.console-body{max-height:220px;overflow-y:auto;padding:.6rem 1rem;font-size:.7rem;line-height:1.65;border-top:1px solid #1a1a1f}
+.console-body.hidden{display:none}
+.console-body .log-line{margin-bottom:.1rem;word-break:break-word}
+.console-body .t{color:#44444f}
+.log-info{color:#9090a0}
+.log-ok{color:#86efac}
+.log-err{color:#fca5a5}
+.log-warn{color:#fcd34d}
+.log-api{color:#93c5fd}
+.log-raw{color:#c4b5fd;white-space:pre-wrap;background:#14141a;padding:.4rem;border-radius:4px;margin:.2rem 0;border-left:2px solid #a78bfa;max-height:200px;overflow-y:auto}
+.toast{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%) translateY(-120px);background:#1c1c24;border:1px solid #30303a;border-radius:8px;padding:.75rem 1.2rem;font-size:.82rem;z-index:200;opacity:0;transition:.3s;pointer-events:none;font-weight:500;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:#166534;color:#86efac;background:#0a2418}
+.toast.err{border-color:#5a1a1a;color:#fca5a5;background:#2a0e0e}
+.toast.warn{border-color:#5a3f10;color:#fcd34d;background:#2a1e08}
+.export-box{background:#0d0d10;border:1px solid #30303a;border-radius:6px;padding:.75rem;margin-top:.6rem}
+.export-box textarea{min-height:160px;font-size:.72rem}
+.preview-img{max-width:100%;max-height:220px;border-radius:8px;border:1px solid #30303a;display:block;margin-top:.6rem}
+.step-badge{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;background:#5b8def;color:#fff;border-radius:50%;font-size:.68rem;font-weight:800;margin-right:.4rem}
+.raw-panel{background:#0a0a0e;border:1px solid #5a2828;border-radius:6px;padding:.75rem;margin-top:.75rem;font-family:ui-monospace,monospace;font-size:.7rem;color:#c4b5fd;white-space:pre-wrap;max-height:400px;overflow-y:auto;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Copie Parfaite</h1>
+  <p class="sub">8 tentatives · scoring IA + feedback humain · itération intelligente</p>
+</header>
+
+<div class="card">
+  <h2><span class="step-badge">1</span>Clés API</h2>
+  <label for="keysInput">Colle tes clés Agnes (une par ligne). Optionnel : ajoute une clé Replicate (r8_...) pour DreamSim.</label>
+  <textarea id="keysInput" placeholder="sk-xxxxxxxxxxxx&#10;sk-yyyyyyyyyyyy&#10;r8_zzzzzzzzzz" spellcheck="false"></textarea>
+  <div class="row">
+    <button id="validateKeys" class="primary">🔐 Valider les clés</button>
+    <button id="clearKeys" class="danger">Effacer</button>
+  </div>
+  <div class="status" id="keysStatus"><span class="dot"></span><span>Aucune clé enregistrée</span></div>
+  <div class="hint">Les clés au format <code>sk-...</code> sont acceptées même si le test réseau échoue (CORS/navigateur).</div>
+</div>
+
+<div class="card">
+  <h2><span class="step-badge">2</span>Image de référence</h2>
+  <input type="file" id="refInput" accept="image/*">
+  <div id="refPreview" class="hidden">
+    <img id="refImg" class="preview-img">
+    <div class="hint" id="refName"></div>
+    <button id="clearRef" class="danger" style="margin-top:.5rem;width:auto">Retirer l'image</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="step-badge">3</span>Paramètres</h2>
+  <div class="row" style="margin-top:0">
+    <div>
+      <label>Mode</label>
+      <select id="modeSelect">
+        <option value="face">Visage / Portrait</option>
+        <option value="art">Œuvre d'art / Image libre</option>
+      </select>
+    </div>
+    <div>
+      <label>Format</label>
+      <select id="sizeSelect">
+        <option value="1024x1024">Carré 1:1</option>
+        <option value="1024x1792" selected>Portrait 9:16</option>
+        <option value="1792x1024">Paysage 16:9</option>
+      </select>
+    </div>
+  </div>
+  <div style="margin-top:.6rem">
+    <label>Contexte additionnel (optionnel)</label>
+    <textarea id="userContext" placeholder="Éclairage, ambiance, détails à préserver…" rows="2" spellcheck="false"></textarea>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="step-badge">4</span>Lancer la génération</h2>
+  <button id="startBtn" class="primary full" disabled>✦ Lancer la ronde 1 — 8 descriptions → 8 images</button>
+  <div class="progress"><div class="fill" id="progressFill"></div></div>
+  <div class="meta">
+    <span>Ronde <strong id="roundLabel">#0</strong></span>
+    <span>Images <strong id="imgLabel">0/8</strong></span>
+    <span id="rpmLabel"></span>
+  </div>
+</div>
+
+<!-- Panneau de diagnostic pour la réponse brute -->
+<div class="card hidden" id="debugBox">
+  <h2>🔍 Réponse brute du modèle (diagnostic)</h2>
+  <div class="hint" style="margin-top:0;margin-bottom:.5rem">L'analyse a échoué. Voici la réponse telle que reçue d'Agnes. Copie-la si besoin.</div>
+  <div class="raw-panel" id="rawPanel"></div>
+  <div class="row">
+    <button id="copyRaw" class="primary">Copier la réponse</button>
+    <button id="retryAnalysis" class="success">↻ Relancer l'analyse</button>
+    <button id="closeDebug">Fermer</button>
+  </div>
+</div>
+
+<div class="card hidden" id="workingDesc">
+  <h2>🎯 Description gagnante</h2>
+  <div class="hint" id="wdMeta" style="margin-top:0;margin-bottom:.5rem"></div>
+  <textarea id="wdText" readonly style="min-height:120px"></textarea>
+</div>
+
+<div id="candidatesWrap" class="hidden">
+  <div class="card">
+    <h2 id="roundTitle">Ronde #1 — 8 candidats</h2>
+    <div class="hint" style="margin-top:0">L'IA a pré-classé par score de similarité. Note chaque image (1-5), coche les problèmes, puis choisis ta gagnante.</div>
+  </div>
+  <div class="grid" id="candidates"></div>
+</div>
+
+<div class="card hidden" id="postActions">
+  <h2>Actions</h2>
+  <div class="row" style="margin-top:0">
+    <button id="retryBtn" class="primary" disabled>↻ Ronde suivante (basée sur ta gagnante + feedback)</button>
+    <button id="exportBtn" class="success">📋 Exporter le prompt final</button>
+    <button id="resetBtn" class="danger">↺ Tout recommencer</button>
+  </div>
+  <div class="hint" id="actionHint" style="margin-top:.5rem">Sélectionne une gagnante et note les images pour continuer.</div>
+</div>
+
+<div class="card hidden" id="exportBox">
+  <h2>✓ Prompt final</h2>
+  <div class="export-box">
+    <textarea id="exportText" readonly spellcheck="false"></textarea>
+  </div>
+  <div class="row">
+    <button id="copyExport" class="primary">Copier</button>
+    <button id="closeExport">Fermer</button>
+  </div>
+</div>
+
+<div class="card hidden" id="historyBox">
+  <h2>📜 Historique des rondes</h2>
+  <div id="historyContent" class="hint" style="margin-top:0;line-height:1.9;font-size:.75rem"></div>
+</div>
+
+</div>
+
+<div class="console">
+  <div class="console-head" id="consoleToggle">
+    <span id="consoleLabel">▼ Console</span>
+    <span class="latest" id="consoleLatest">Prêt.</span>
+  </div>
+  <div class="console-body hidden" id="consoleBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const API_BASE = 'https://apihub.agnes-ai.com/v1';
+const MODEL_TEXT = 'agnes-2.5-flash';
+const MODEL_IMAGE = 'agnes-image-2.1-flash';
+const MIN_INTERVAL_MS = 5000;
+const CONCURRENCY = 2;
+const COOLDOWN_MS = 65000;
+const BATCH_SIZE = 8;
+const REF_MAX_SIDE = 1400;
+const DEBUG_MAX = 400;
+const W_DREAMSIM = 0.45, W_CLIP = 0.25, W_DINO = 0.15, W_USER = 0.15;
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  apiKeys: [], replicateKey: '',
+  refImage: null, refName: null,
+  userContext: '', mode: 'face', imageSize: '1024x1792',
+  round: 0, candidates: [], chosen: null, history: [],
+  fidelityProfile: { preferredLighting:'', preferredPalette:'', facePriorities:{}, recurringFlags:[], successfulKeywords:[] },
+  taskQueue: [], running: false, stopRequested: false,
+  keyLastUse: {}, keyCooldown: {}, uid: 0, logs: [],
+  lastRawResponse: ''
+};
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now = () => new Date().toLocaleTimeString('fr-FR',{hour12:false});
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+
+function log(msg, level='info', raw) {
+  state.logs.push({t:now(), m:msg, c:level, raw});
+  if (state.logs.length > DEBUG_MAX) state.logs.shift();
+  const el = $('consoleLatest');
+  if (el) el.textContent = String(msg).slice(0, 120);
+  const body = $('consoleBody');
+  if (body && !body.classList.contains('hidden')) {
+    body.innerHTML = state.logs.slice(-200).map(l => {
+      let html = `<div class="log-line log-${l.c}"><span class="t">${l.t}</span> ${esc(String(l.m).slice(0, 400))}</div>`;
+      if (l.raw) html += `<div class="log-raw">${esc(String(l.raw).slice(0, 1500))}</div>`;
+      return html;
+    }).join('');
+    body.scrollTop = body.scrollHeight;
+  }
+}
+function toast(msg, type='ok', ms=2500) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => { el.className = 'toast ' + type; }, ms);
+}
+function setProgress(pct) { $('progressFill').style.width = clamp(pct,0,100)+'%'; }
+
+// ═══════════════════════════════════════════════════════════════
+// JSON EXTRACTION — extrêmement permissif
+// ═══════════════════════════════════════════════════════════════
+/**
+ * Trouve le premier objet { ... } ou tableau [ ... ] équilibré dans le texte.
+ * Gère les chaînes et l'échappement.
+ */
+function extractBalanced(text, openChar, closeChar) {
+  let start = text.indexOf(openChar);
+  if (start < 0) return null;
+  let depth = 0, inStr = false, escNext = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (escNext) { escNext = false; continue; }
+    if (ch === '\\') { escNext = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === openChar) depth++;
+    else if (ch === closeChar) {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
+/**
+ * Essaie de réparer un JSON légèrement cassé.
+ */
+function repairJson(text) {
+  if (!text) return null;
+  let c = text.trim();
+  const fm = c.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fm) c = fm[1].trim();
+  // Nettoyer les caractères invisibles
+  c = c.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
+  // Corriger les virgules finales
+  c = c.replace(/,\s*([}\]])/g, '$1');
+  // Corriger les chaînes non fermées et les sauts de ligne dans les chaînes
+  let out = '', inS = false, esc2 = false;
+  for (let i = 0; i < c.length; i++) {
+    const ch = c[i];
+    if (esc2) { if ('"\\/bfnrtu'.includes(ch)) { out += '\\' + ch; } else { out += ch; } esc2 = false; continue; }
+    if (ch === '\\') { esc2 = true; continue; }
+    if (ch === '"') { inS = !inS; out += ch; continue; }
+    if (inS) {
+      if (ch === '\n') out += '\\n';
+      else if (ch === '\r') out += '\\r';
+      else if (ch === '\t') out += '\\t';
+      else if (ch.charCodeAt(0) < 32) out += '\\u' + ch.charCodeAt(0).toString(16).padStart(4, '0');
+      else out += ch;
+      continue;
+    }
+    out += ch;
+  }
+  if (esc2) out += '\\';
+  if (inS) out += '"';
+  return out;
+}
+
+/**
+ * Parse extrêmement robuste :
+ * 1. Extrait l'objet { } équilibré
+ * 2. Essaie JSON.parse
+ * 3. Essaie avec réparation
+ * 4. Retourne null sinon
+ */
+function parseJsonRobust(text) {
+  if (!text) return null;
+  const raw = String(text);
+
+  // Tentative 1 : objet équilibré
+  const objText = extractBalanced(raw, '{', '}');
+  if (objText) {
+    try { return JSON.parse(objText); } catch (e) {}
+    const repaired = repairJson(objText);
+    if (repaired) { try { return JSON.parse(repaired); } catch (e) {} }
+  }
+
+  // Tentative 2 : tableau équilibré
+  const arrText = extractBalanced(raw, '[', ']');
+  if (arrText) {
+    try { return JSON.parse(arrText); } catch (e) {}
+    const repaired = repairJson(arrText);
+    if (repaired) { try { return JSON.parse(repaired); } catch (e) {} }
+  }
+
+  // Tentative 3 : code block markdown
+  const fm = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fm) {
+    const inside = fm[1].trim();
+    try { return JSON.parse(inside); } catch (e) {}
+    const obj2 = extractBalanced(inside, '{', '}');
+    if (obj2) { try { return JSON.parse(obj2); } catch (e) {} }
+    const arr2 = extractBalanced(inside, '[', ']');
+    if (arr2) { try { return JSON.parse(arr2); } catch (e) {} }
+  }
+
+  return null;
+}
+
+/**
+ * Parse une réponse qui devrait contenir { candidates: [...] }
+ * Retourne un tableau de candidats ou null.
+ */
+function parseCandidates(raw) {
+  const parsed = parseJsonRobust(raw);
+  if (parsed) {
+    // Cas 1 : objet avec candidates
+    if (parsed.candidates && Array.isArray(parsed.candidates)) return parsed.candidates;
+    // Cas 2 : tableau direct
+    if (Array.isArray(parsed)) return parsed;
+    // Cas 3 : objet avec d'autres clés contenant des tableaux
+    for (const key of Object.keys(parsed)) {
+      if (Array.isArray(parsed[key]) && parsed[key].length > 0 && typeof parsed[key][0] === 'object') {
+        return parsed[key];
+      }
+    }
+    // Cas 4 : objet avec une seule version (label + description)
+    if (parsed.description || parsed.face_dna || parsed.prompt) {
+      return [parsed];
+    }
+  }
+
+  // Fallback : chercher tous les objets { ... } dans le texte qui contiennent "description"
+  const objects = [];
+  let i = 0;
+  while (i < raw.length) {
+    const start = raw.indexOf('{', i);
+    if (start < 0) break;
+    const bal = extractBalanced(raw.slice(start), '{', '}');
+    if (!bal) break;
+    try {
+      const obj = JSON.parse(bal) || JSON.parse(repairJson(bal));
+      if (obj && typeof obj === 'object' && (obj.description || obj.label || obj.prompt)) {
+        objects.push(obj);
+      }
+    } catch (e) {}
+    i = start + bal.length;
+  }
+  if (objects.length > 0) return objects;
+
+  return null;
+}
+
+/**
+ * Normalise les candidats bruts en objets propres { label, focus, description, diff }
+ */
+function normalizeCandidates(raw, withDiff) {
+  if (!Array.isArray(raw)) return [];
+  const list = [];
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (!c || typeof c !== 'object') continue;
+    const label = String(c.label || c.name || c.title || ('Version ' + (i + 1))).trim();
+    const focus = String(c.focus || c.angle || c.approach || c.aspect || '').trim();
+    const description = String(c.description || c.prompt || c.text || c.content || c.face_dna || '').trim();
+    if (description.length < 30) continue;
+    list.push({
+      label: label.slice(0, 40),
+      focus: focus.slice(0, 40),
+      description: description,
+      diff: withDiff ? String(c.diff || c.change || c.refined || '').trim().slice(0, 200) : ''
+    });
+  }
+  return list;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════
+const _mem = {};
+let _ls=false, _ss=false;
+try{localStorage.setItem('__t','1');localStorage.removeItem('__t');_ls=true}catch(e){}
+try{sessionStorage.setItem('__t','1');sessionStorage.removeItem('__t');_ss=true}catch(e){}
+function sGet(k){
+  if(_ls){try{const v=localStorage.getItem(k);if(v!==null)return v}catch(e){}}
+  if(_ss){try{const v=sessionStorage.getItem(k);if(v!==null)return v}catch(e){}}
+  return _mem[k] ?? null;
+}
+function sSet(k,v){
+  _mem[k]=String(v);
+  if(_ls){try{localStorage.setItem(k,v)}catch(e){}}
+  if(_ss){try{sessionStorage.setItem(k,v)}catch(e){}}
+}
+function sDel(k){delete _mem[k];if(_ls){try{localStorage.removeItem(k)}catch(e){}}if(_ss){try{sessionStorage.removeItem(k)}catch(e){}}}
+
+// ═══════════════════════════════════════════════════════════════
+// KEY VALIDATION
+// ═══════════════════════════════════════════════════════════════
+function isValidAgnesKey(k) { return typeof k === 'string' && k.startsWith('sk-') && k.length >= 15 && k.length <= 200; }
+function isValidReplicateKey(k) { return typeof k === 'string' && k.startsWith('r8_') && k.length >= 20; }
+
+async function pingKey(key) {
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(API_BASE + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: MODEL_TEXT, messages: [{ role: 'user', content: 'ok' }], max_tokens: 1 }),
+      signal: controller.signal
+    });
+    clearTimeout(tid);
+    if (res.status === 401 || res.status === 403) return 'invalid';
+    return 'ok';
+  } catch (e) { return 'network'; }
+}
+
+async function validateKeys() {
+  const raw = $('keysInput').value.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!raw.length) { setKeysStatus('warn', 'Aucune clé saisie.'); toast('Aucune clé saisie','warn'); return; }
+
+  const agnes = [], replicate = [];
+  for (const k of raw) {
+    if (k.startsWith('sk-')) agnes.push(k);
+    else if (k.startsWith('r8_')) replicate.push(k);
+  }
+  if (!agnes.length) { setKeysStatus('err', 'Aucune clé Agnes (sk-...) détectée.'); toast('Pas de clé Agnes','err'); return; }
+
+  state.apiKeys = agnes.filter(isValidAgnesKey);
+  state.replicateKey = replicate.find(isValidReplicateKey) || '';
+  if (!state.apiKeys.length) { setKeysStatus('err', 'Format de clé invalide.'); toast('Format invalide','err'); return; }
+
+  setKeysStatus('loading', `Test de ${state.apiKeys.length} clé(s)…`);
+  $('validateKeys').disabled = true;
+  $('validateKeys').textContent = '⏳ Test…';
+
+  let ok = 0, invalid = 0, network = 0;
+  const refused = [];
+  for (let i = 0; i < state.apiKeys.length; i++) {
+    const k = state.apiKeys[i];
+    const r = await pingKey(k);
+    if (r === 'ok') { ok++; log(`Clé ${i+1} OK`, 'ok'); }
+    else if (r === 'invalid') { invalid++; refused.push(k); log(`Clé ${i+1} refusée (401/403)`, 'err'); }
+    else { network++; log(`Clé ${i+1} test réseau impossible (acceptée)`, 'warn'); }
+  }
+
+  state.apiKeys = state.apiKeys.filter(k => !refused.includes(k));
+  try { sSet('cp_keys', JSON.stringify(state.apiKeys)); } catch(e) {}
+  if (state.replicateKey) { try { sSet('cp_replicate', state.replicateKey); } catch(e) {} }
+
+  const n = state.apiKeys.length;
+  if (n === 0) { setKeysStatus('err', 'Aucune clé valide.'); toast('Aucune clé valide','err'); }
+  else {
+    let msg = `${n} clé(s) enregistrée(s)`;
+    if (invalid > 0) msg += ` · ${invalid} refusée(s)`;
+    if (network > 0) msg += ` · ${network} sans réseau (acceptée)`;
+    if (state.replicateKey) msg += ` · Replicate ✓`;
+    setKeysStatus('ok', msg);
+    toast(`${n} clé(s) enregistrée(s)`, 'ok');
+  }
+
+  $('validateKeys').disabled = false;
+  $('validateKeys').textContent = '🔐 Valider les clés';
+  updateRpmLabel();
+  updateStartBtn();
+}
+
+function setKeysStatus(type, text) {
+  const el = $('keysStatus');
+  el.className = 'status ' + (type === 'loading' ? 'warn' : type);
+  const spinner = type === 'loading' ? '<div class="spinner"></div>' : '<span class="dot"></span>';
+  el.innerHTML = spinner + '<span>' + esc(text) + '</span>';
+}
+function updateRpmLabel() { $('rpmLabel').textContent = state.apiKeys.length ? `RPM cap ≈ ${state.apiKeys.length * 12}` : ''; }
+
+// ═══════════════════════════════════════════════════════════════
+// PACEUR RPM
+// ═══════════════════════════════════════════════════════════════
+async function acquireKey() {
+  while (!state.stopRequested) {
+    const nowTs = Date.now();
+    if (!state.apiKeys.length) throw new Error('Aucune clé API');
+    let best = null, bestAvail = Infinity;
+    for (const k of state.apiKeys) {
+      const last = state.keyLastUse[k] || 0;
+      const cool = state.keyCooldown[k] || 0;
+      const av = Math.max(last + MIN_INTERVAL_MS, cool);
+      if (av < bestAvail) { bestAvail = av; best = k; }
+    }
+    if (!best) throw new Error('Aucune clé dispo');
+    const wait = bestAvail - nowTs;
+    if (wait <= 0) { state.keyLastUse[best] = nowTs; return best; }
+    await sleep(Math.min(wait, 800));
+  }
+  throw new Error('Arrêt');
+}
+function cooldown(key, ms) { state.keyCooldown[key] = Date.now() + ms; }
+
+// ═══════════════════════════════════════════════════════════════
+// API IMAGE
+// ═══════════════════════════════════════════════════════════════
+async function apiImage(prompt) {
+  const MAX = 12; let lastErr = null;
+  for (let a = 0; a < MAX; a++) {
+    if (state.stopRequested) throw new Error('Arrêt');
+    const key = await acquireKey();
+    try {
+      const r = await fetch(API_BASE + '/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: MODEL_IMAGE, prompt, n: 1, size: state.imageSize, response_format: 'url' })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        const item = d.data && d.data[0];
+        if (item && item.url) return item.url;
+        if (item && item.b64_json) return 'data:image/png;base64,' + item.b64_json;
+        throw new Error('Réponse sans image');
+      }
+      if (r.status === 429) {
+        const ra = parseInt(r.headers.get('retry-after') || '0', 10);
+        const cd = ra > 0 ? ra * 1000 : COOLDOWN_MS + a * 15000;
+        cooldown(key, cd);
+        log('429 · cooldown ' + Math.round(cd/1000) + 's · retry ' + (a+1), 'warn');
+        await sleep(1500 + a * 800); continue;
+      }
+      if ([502, 503, 504].includes(r.status)) { await sleep(3000 + a * 1500); continue; }
+      if ([401, 403].includes(r.status)) { cooldown(key, 300000); await sleep(500); continue; }
+      const t = await r.text().catch(() => '');
+      lastErr = new Error('HTTP ' + r.status + ' ' + t.slice(0, 80));
+      await sleep(2000 + a * 1200);
+    } catch (e) {
+      if (e.message === 'Arrêt') throw e;
+      lastErr = e;
+      await sleep(2500 + a * 1200);
+    }
+  }
+  throw lastErr || new Error('Échec après ' + MAX + ' tentatives');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API VISION — avec debug de la réponse
+// ═══════════════════════════════════════════════════════════════
+async function apiVision(system, userText, imageUrl, maxTokens, temp) {
+  const MAX = 6;
+  let lastErr = null;
+  for (let a = 0; a < MAX; a++) {
+    if (state.stopRequested) throw new Error('Arrêt');
+    const key = await acquireKey();
+    try {
+      const r = await fetch(API_BASE + '/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL_TEXT,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: [
+              { type: 'text', text: userText },
+              { type: 'image_url', image_url: { url: imageUrl } }
+            ]}
+          ],
+          temperature: temp !== undefined ? temp : 0.7,
+          max_tokens: maxTokens || 6000
+        })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        const ch = d.choices && d.choices[0];
+        // Essaie content, puis reasoning_content, puis message entier
+        let content = null;
+        if (ch && ch.message) {
+          content = ch.message.content || ch.message.reasoning_content || null;
+        }
+        // Si finish_reason = length, le message est tronqué
+        const finish = ch && ch.finish_reason;
+        if (finish === 'length') log('⚠ Réponse tronquée (finish_reason=length)', 'warn');
+        return content;
+      }
+      if (r.status === 429) {
+        const ra = parseInt(r.headers.get('retry-after') || '0', 10);
+        cooldown(key, ra > 0 ? ra * 1000 : COOLDOWN_MS);
+        await sleep(1500 + a * 800); continue;
+      }
+      if (r.status >= 500) { await sleep(3000 + a * 1500); continue; }
+      if ([401, 403].includes(r.status)) { cooldown(key, 300000); await sleep(500); continue; }
+      const t = await r.text().catch(() => '');
+      lastErr = new Error('HTTP ' + r.status + ' ' + t.slice(0, 100));
+      log('Vision HTTP ' + r.status + ' ' + t.slice(0, 100), 'err');
+      await sleep(2000);
+    } catch (e) {
+      if (e.message === 'Arrêt') throw e;
+      lastErr = e;
+      log('Vision err : ' + e.message, 'warn');
+      await sleep(2500);
+    }
+  }
+  throw lastErr || new Error('Vision échec après ' + MAX + ' tentatives');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCORING — DreamSim + LLM comparison
+// ═══════════════════════════════════════════════════════════════
+async function scoreDreamSim(refUrl, genUrl) {
+  if (!state.replicateKey) return null;
+  try {
+    const r = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + state.replicateKey, 'Content-Type': 'application/json', 'Prefer': 'wait' },
+      body: JSON.stringify({
+        version: 'a5f0f96b9a65316379d7262cdd7c3fbaa64057f1b673a172b143974b067bf9ac',
+        input: { images: refUrl + ',' + genUrl, separator: ',' }
+      })
+    });
+    if (!r.ok) { log('DreamSim HTTP ' + r.status, 'warn'); return null; }
+    const d = await r.json();
+    let out = d.output;
+    if (typeof out === 'string') out = parseFloat(out);
+    if (typeof out === 'number' && !isNaN(out)) return clamp(1 - out, 0, 1);
+    if (Array.isArray(out) && out.length) return clamp(1 - parseFloat(out[0]), 0, 1);
+    return null;
+  } catch (e) { log('DreamSim err : ' + e.message, 'warn'); return null; }
+}
+
+async function makeSideBySide(url1, url2) {
+  const load = src => new Promise((res, rej) => {
+    const i = new Image();
+    i.crossOrigin = 'anonymous';
+    i.onload = () => res(i);
+    i.onerror = rej;
+    i.src = src;
+  });
+  const [a, b] = await Promise.all([load(url1), load(url2)]);
+  const h = 480;
+  const wa = Math.round(a.width * h / a.height);
+  const wb = Math.round(b.width * h / b.height);
+  const c = document.createElement('canvas');
+  c.width = wa + wb + 20; c.height = h;
+  const x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height);
+  x.drawImage(a, 0, 0, wa, h);
+  x.drawImage(b, wa + 20, 0, wb, h);
+  x.fillStyle = '#fff'; x.font = 'bold 16px sans-serif';
+  x.fillText('REF', 10, 24); x.fillText('GEN', wa + 30, 24);
+  return c.toDataURL('image/jpeg', 0.85);
+}
+
+async function scoreWithLLM(refUrl, genUrl) {
+  try {
+    const side = await makeSideBySide(refUrl, genUrl);
+    const sys = 'You are an objective image comparison judge. You see a side-by-side image: LEFT is REFERENCE, RIGHT is GENERATED. Rate how close the GENERATED (right) is to the REFERENCE (left) on a 0-10 scale for each axis. Output ONLY valid JSON: { "overall": 7, "face": 8, "color": 6, "composition": 7, "detail": 5 }. Integers 0-10.';
+    const usr = 'Compare LEFT and RIGHT. Output ONLY the JSON object.';
+    const raw = await apiVision(sys, usr, side, 800, 0.3);
+    const p = parseJsonRobust(raw);
+    if (!p) return null;
+    return {
+      overall: (p.overall || 5) / 10,
+      face: (p.face || 5) / 10,
+      color: (p.color || 5) / 10,
+      composition: (p.composition || 5) / 10,
+      detail: (p.detail || 5) / 10
+    };
+  } catch (e) { log('LLM score err : ' + e.message, 'warn'); return null; }
+}
+
+async function scoreCandidate(cand) {
+  if (!cand.url || cand.url === 'error') return;
+  const ds = await scoreDreamSim(state.refImage, cand.url);
+  if (ds !== null) cand.scores.dreamsim = ds;
+  const llm = await scoreWithLLM(state.refImage, cand.url);
+  if (llm) {
+    if (cand.scores.dreamsim === null) cand.scores.dreamsim = (llm.overall * 0.5 + llm.face * 0.5);
+    cand.scores.clip = llm.color;
+    cand.scores.dino = llm.composition;
+    cand.scores.detail = llm.detail;
+    cand.scores.face = llm.face;
+  }
+  computeComposite(cand);
+}
+
+function computeComposite(cand) {
+  const ds = cand.scores.dreamsim ?? 0.5;
+  const cl = cand.scores.clip ?? 0.5;
+  const dn = cand.scores.dino ?? 0.5;
+  const us = cand.userOverall ?? 0.5;
+  cand.composite = ds * W_DREAMSIM + cl * W_CLIP + dn * W_DINO + us * W_USER;
+}
+
+async function scoreAllCandidates() {
+  log('Calcul des scores objectifs…', 'api');
+  const list = state.candidates.filter(c => c.url && c.url !== 'error');
+  const chunkSize = 2;
+  for (let i = 0; i < list.length; i += chunkSize) {
+    const chunk = list.slice(i, i + chunkSize);
+    await Promise.all(chunk.map(c => scoreCandidate(c)));
+    setProgress(60 + (i + chunk.length) / list.length * 35);
+  }
+  state.candidates.sort((a, b) => b.composite - a.composite);
+  log('Scores calculés · meilleur : ' + Math.round((state.candidates[0]?.composite || 0) * 100) + '%', 'ok');
+  renderCandidates();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SYSTEM PROMPTS — très explicites
+// ═══════════════════════════════════════════════════════════════
+const SYS_ROUND1 = `You are a forensic image analyst and prompt engineer.
+
+You receive a REFERENCE image. Produce EIGHT different self-contained descriptions that would each make an AI generate an image as CLOSE AS POSSIBLE to the reference.
+
+Each description must include: framing, subject/content, environment, lighting, palette, medium/rendering, mood, small recognisable details.
+Each description 130-190 words, English, forensic and specific.
+
+EIGHT ANGLES:
+1. composition-first
+2. subject-first
+3. color-first
+4. light-first
+5. medium-first
+6. detail-first
+7. atmosphere-first
+8. synthesis
+
+CRITICAL OUTPUT RULES:
+- Your ENTIRE response must be ONLY a JSON object.
+- No preamble, no explanation, no commentary, no markdown fences.
+- Start your response with the character { and end with }.
+- Use straight apostrophes (') only, never curly quotes.
+- Never use trailing commas.
+
+Required JSON structure:
+{
+  "candidates": [
+    { "label": "short French label", "focus": "angle in French", "description": "130-190 words English" },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." },
+    { "label": "...", "focus": "...", "description": "..." }
+  ]
+}
+
+Return EXACTLY 8 candidate objects. Nothing else.`;
+
+const SYS_REFINE = `You are a forensic image analyst refining a description with a user.
+
+You receive: (a) the REFERENCE image, (b) the PREVIOUS winning description, (c) the USER FEEDBACK (ratings + flags).
+
+Produce EIGHT new refined descriptions that push the reconstruction CLOSER to the reference.
+The user feedback tells you what to fix. Incorporate it DIRECTLY.
+
+RULES:
+- Keep the identity of the winning description.
+- Fix the flagged problems.
+- Emphasise the criteria the user rated highly.
+- Each variation refines ONE aspect: 1) framing, 2) subject detail, 3) color, 4) lighting, 5) medium, 6) small details, 7) background, 8) holistic tightening.
+- Each variation is a COMPLETE standalone description.
+- 130-190 words, English, forensic.
+
+CRITICAL OUTPUT RULES:
+- Your ENTIRE response must be ONLY a JSON object.
+- No preamble, no markdown fences.
+- Start with { and end with }.
+- Straight apostrophes only. No trailing commas.
+
+Required JSON structure:
+{
+  "candidates": [
+    { "label": "short French label", "focus": "aspect in French", "description": "130-190 words English", "diff": "one French sentence explaining what changed" },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." },
+    { "label": "...", "focus": "...", "description": "...", "diff": "..." }
+  ]
+}
+
+Return EXACTLY 8 candidate objects. Nothing else.`;
+
+// ═══════════════════════════════════════════════════════════════
+// GÉNÉRATION DES CANDIDATS
+// ═══════════════════════════════════════════════════════════════
+async function generateRound1() {
+  const usr = [
+    state.mode === 'face'
+      ? 'MODE: PORTRAIT. Describe the face forensically: skull, jaw, chin, cheekbones, forehead, eyes, eyebrows, nose, lips, ears, skin, hair, expression.'
+      : 'MODE: ARTWORK. Describe content, composition, medium, palette, lighting, details, atmosphere.',
+    state.userContext ? 'USER CONTEXT: ' + state.userContext : '',
+    'Produce 8 candidates. Output ONLY the JSON object, nothing else.'
+  ].filter(Boolean).join('\n');
+
+  return await attemptAnalysisWithRetry(SYS_ROUND1, usr, false);
+}
+
+async function generateRefine(chosen) {
+  const usr = [
+    'ROUND: ' + state.round,
+    'MODE: ' + (state.mode === 'face' ? 'PORTRAIT' : 'ARTWORK'),
+    '',
+    '═══ PREVIOUS WINNING DESCRIPTION ═══',
+    chosen.description,
+    '',
+    '═══ USER FEEDBACK ═══',
+    buildFeedbackString(chosen),
+    '',
+    state.userContext ? 'USER CONTEXT: ' + state.userContext : '',
+    'Look at the reference again. Incorporate the feedback. Produce 8 refined candidates.',
+    'Output ONLY the JSON object, nothing else.'
+  ].filter(Boolean).join('\n');
+
+  return await attemptAnalysisWithRetry(SYS_REFINE, usr, true);
+}
+
+/**
+ * Tente l'analyse. Si le parsing échoue, relance UNE FOIS avec un prompt
+ * encore plus direct ("just JSON, no words before").
+ */
+async function attemptAnalysisWithRetry(system, user, withDiff) {
+  // Tentative 1
+  log('Appel Agnes (vision)…', 'api');
+  const raw1 = await apiVision(system, user, state.refImage, 8000, 0.7);
+  state.lastRawResponse = raw1 || '';
+  if (raw1) log('Réponse reçue (' + raw1.length + ' caractères)', 'api');
+
+  let candidates = parseCandidates(raw1);
+  let normalized = normalizeCandidates(candidates, withDiff);
+
+  if (normalized.length >= 4) {
+    log(normalized.length + ' candidats extraits', 'ok');
+    return normalized;
+  }
+
+  // Diagnostic
+  log('⚠ Parsing initial : ' + normalized.length + ' candidats. Réessai avec prompt renforcé…', 'warn');
+  if (raw1) log('Réponse brute (extrait)', 'warn', raw1.slice(0, 1200));
+
+  // Tentative 2 : prompt encore plus direct
+  const reinforceSys = system + '\n\nCRITICAL: Your response must start with { and end with }. Do not write anything before or after. Do not use markdown.';
+  const reinforceUser = user + '\n\nREMINDER: Output ONLY the JSON object.';
+  log('Appel Agnes (retry renforcé)…', 'api');
+  const raw2 = await apiVision(reinforceSys, reinforceUser, state.refImage, 8000, 0.5);
+  if (raw2) state.lastRawResponse = raw2;
+  if (raw2) log('Réponse 2 reçue (' + raw2.length + ' caractères)', 'api');
+
+  candidates = parseCandidates(raw2);
+  normalized = normalizeCandidates(candidates, withDiff);
+
+  if (normalized.length >= 4) {
+    log(normalized.length + ' candidats extraits (retry)', 'ok');
+    return normalized;
+  }
+
+  // Échec total : on lève une erreur avec la réponse brute
+  if (raw2) log('Réponse brute 2 (extrait)', 'err', raw2.slice(0, 1500));
+  const rawForDebug = (raw2 || raw1 || '').slice(0, 5000);
+  state.lastRawResponse = rawForDebug;
+  throw new Error('Impossible d\'extraire les candidats (' + normalized.length + ' trouvés). Réponse brute disponible dans le panneau diagnostic.');
+}
+
+function buildFeedbackString(chosen) {
+  const lines = [];
+  if (chosen.userScores && Object.keys(chosen.userScores).length) {
+    const labels = { face:'Visage', color:'Couleurs', light:'Éclairage', comp:'Composition', detail:'Détails', global:'Global' };
+    lines.push('Ratings: ' + Object.entries(chosen.userScores).map(([k, v]) => `${labels[k]}: ${v}/5`).join(', '));
+  }
+  if (chosen.flags && chosen.flags.length) lines.push('Flags: ' + chosen.flags.join(', '));
+  const fp = state.fidelityProfile;
+  if (fp.recurringFlags && fp.recurringFlags.length) lines.push('Recurring flags to fix: ' + fp.recurringFlags.join(', '));
+  if (fp.preferredLighting) lines.push('Preferred lighting: ' + fp.preferredLighting);
+  if (fp.preferredPalette) lines.push('Preferred palette: ' + fp.preferredPalette);
+  if (fp.successfulKeywords && fp.successfulKeywords.length) lines.push('Successful keywords: ' + fp.successfulKeywords.join(', '));
+  return lines.join('\n');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FIDELITY PROFILE
+// ═══════════════════════════════════════════════════════════════
+async function updateFidelityProfile(chosen) {
+  state.history.push({
+    round: state.round,
+    winnerLabel: chosen.label,
+    winnerDesc: chosen.description,
+    scores: chosen.userScores || {},
+    flags: chosen.flags || [],
+    composite: chosen.composite
+  });
+  const fp = state.fidelityProfile;
+  const recentFlags = state.history.slice(-3).flatMap(h => h.flags || []);
+  const flagCount = {};
+  recentFlags.forEach(f => { flagCount[f] = (flagCount[f] || 0) + 1; });
+  fp.recurringFlags = Object.entries(flagCount).filter(([_, c]) => c >= 2).map(([f]) => f).slice(0, 8);
+
+  const desc = chosen.description;
+  const paletteMatch = desc.match(/palette of ([^,.]+)/i);
+  if (paletteMatch) fp.preferredPalette = paletteMatch[1].trim().slice(0, 60);
+  const lightMatch = desc.match(/(soft|hard|golden|diffused|dramatic|natural) (?:[\w-]+ )?light/i);
+  if (lightMatch) fp.preferredLighting = lightMatch[0].slice(0, 60);
+
+  const words = desc.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+  const stop = new Set(['this','that','with','from','have','been','were','they','their','them','which','these','those','into','over','under','through','about','would','could','should','there','where','when','what','also','very','much','more','most','some','such','only','just','like','well','even','back','after','before','between','during','made','make']);
+  const freq = {};
+  words.forEach(w => { if (!stop.has(w)) freq[w] = (freq[w] || 0) + 1; });
+  fp.successfulKeywords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([w]) => w);
+
+  if (chosen.userScores) {
+    const s = chosen.userScores;
+    fp.facePriorities = {
+      face: (s.face || 3) / 5, color: (s.color || 3) / 5,
+      light: (s.light || 3) / 5, composition: (s.comp || 3) / 5, detail: (s.detail || 3) / 5
+    };
+  }
+  log('Profil de fidélité mis à jour', 'api');
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!state.history.length) return;
+  $('historyBox').classList.remove('hidden');
+  $('historyContent').innerHTML = state.history.map(h =>
+    `<div><strong>Ronde #${h.round}</strong> → <em>${esc(h.winnerLabel)}</em> · score ${Math.round((h.composite || 0) * 100)}%` +
+    (h.flags && h.flags.length ? ` · flags : ${esc(h.flags.join(', '))}` : '') + '</div>'
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI CANDIDATES
+// ═══════════════════════════════════════════════════════════════
+const FLAG_OPTIONS = {
+  face: ['nez trop long','nez trop large','yeux trop petits','yeux trop écartés','bouche trop grande','menton trop fort','mâchoire trop large','visage trop rond','sourcils trop fins','pas assez ressemblant'],
+  color: ['trop saturé','pas assez saturé','trop chaud','trop froid','dominante verte','trop sombre','trop clair'],
+  light: ['éclairage trop dur','éclairage trop plat','ombres trop marquées','mauvais côté','manque de lumière'],
+  comp: ['cadrage trop serré','cadrage trop large','angle trop bas','sujet pas centré','arrière-plan trop chargé']
+};
+
+function renderCandidates() {
+  const wrap = $('candidates');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  state.candidates.forEach((cand, i) => {
+    const card = document.createElement('div');
+    card.className = 'item' + (state.chosen && state.chosen.id === cand.id ? ' winner' : '');
+    card.dataset.id = cand.id;
+
+    let imgHtml;
+    if (cand.url === 'error') imgHtml = '<div class="placeholder">✕ Échec</div>';
+    else if (cand.url) imgHtml = `<img src="${cand.url}" loading="lazy" alt="">`;
+    else imgHtml = '<div class="placeholder"><div class="spinner"></div>Génération…</div>';
+
+    const scoresHtml = [];
+    if (cand.scores.dreamsim != null) scoresHtml.push(`DreamSim ${Math.round(cand.scores.dreamsim * 100)}%`);
+    if (cand.scores.clip != null) scoresHtml.push(`Couleur ${Math.round(cand.scores.clip * 100)}%`);
+    if (cand.scores.dino != null) scoresHtml.push(`Comp ${Math.round(cand.scores.dino * 100)}%`);
+    const scoresLine = scoresHtml.length ? scoresHtml.join(' · ') : 'Scores en attente…';
+
+    const scoresUI = ['face','color','light','comp','detail','global'].map(k => {
+      const val = (cand.userScores && cand.userScores[k]) || 3;
+      const labels = { face:'Visage', color:'Couleurs', light:'Éclairage', comp:'Composition', detail:'Détails', global:'Global' };
+      return `<div class="score-row">
+        <label>${labels[k]}</label>
+        <input type="range" min="1" max="5" value="${val}" data-cand="${cand.id}" data-key="${k}">
+        <span class="score-val" id="sv-${cand.id}-${k}">${val}</span>
+      </div>`;
+    }).join('');
+
+    const flagsUI = Object.entries(FLAG_OPTIONS).map(([cat, list]) => `
+      <div class="flag-group">
+        <div class="flag-group-title">${{face:'Visage',color:'Couleurs',light:'Éclairage',comp:'Composition'}[cat]}</div>
+        <div class="flags">
+          ${list.map(f => `<span class="flag${cand.flags && cand.flags.includes(f) ? ' active' : ''}" data-cand="${cand.id}" data-flag="${f}">${f}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      ${imgHtml}
+      <div class="item-body">
+        <div class="item-label">N°${i + 1} — ${esc(cand.label)}</div>
+        ${cand.focus ? `<div class="item-focus">🎯 ${esc(cand.focus)}</div>` : ''}
+        <div class="item-score">Score IA : <strong>${cand.composite ? Math.round(cand.composite * 100) + '%' : '—'}</strong>${scoresLine !== 'Scores en attente…' ? ' · ' + scoresLine : ''}</div>
+        <div class="sep"></div>
+        <div class="eval-title">Ton évaluation</div>
+        ${scoresUI}
+        <div class="sep"></div>
+        <div class="eval-title">Problèmes détectés</div>
+        ${flagsUI}
+        <button class="win-btn" data-win="${cand.id}">${state.chosen && state.chosen.id === cand.id ? '✓ GAGNANTE' : '❤ Cette image est la plus ressemblante'}</button>
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+
+  wrap.querySelectorAll('input[type=range]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const id = e.target.dataset.cand;
+      const key = e.target.dataset.key;
+      const val = parseInt(e.target.value, 10);
+      const cand = state.candidates.find(c => c.id === id);
+      if (!cand) return;
+      if (!cand.userScores) cand.userScores = {};
+      cand.userScores[key] = val;
+      const span = $(`sv-${id}-${key}`);
+      if (span) span.textContent = val;
+      cand.userOverall = (cand.userScores.global || 3) / 5;
+      computeComposite(cand);
+      const card = document.querySelector(`.item[data-id="${id}"]`);
+      if (card) {
+        const scoreEl = card.querySelector('.item-score strong');
+        if (scoreEl) scoreEl.textContent = Math.round(cand.composite * 100) + '%';
+      }
+    });
+  });
+
+  wrap.querySelectorAll('.flag').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = e.target.dataset.cand;
+      const flag = e.target.dataset.flag;
+      const cand = state.candidates.find(c => c.id === id);
+      if (!cand) return;
+      if (!cand.flags) cand.flags = [];
+      const idx = cand.flags.indexOf(flag);
+      if (idx >= 0) cand.flags.splice(idx, 1);
+      else cand.flags.push(flag);
+      e.target.classList.toggle('active');
+    });
+  });
+
+  wrap.querySelectorAll('[data-win]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); selectWinner(btn.dataset.win); });
+  });
+}
+
+function selectWinner(id) {
+  const cand = state.candidates.find(c => c.id === id);
+  if (!cand) return;
+  state.chosen = cand;
+  renderCandidates();
+  $('retryBtn').disabled = false;
+  $('wdMeta').textContent = `Ronde #${state.round} — ${cand.label} (${cand.focus}) · score composite ${Math.round(cand.composite * 100)}%`;
+  $('wdText').value = cand.description;
+  $('workingDesc').classList.remove('hidden');
+  $('actionHint').textContent = 'Gagnante sélectionnée. Clique sur « Ronde suivante » pour affiner avec ton feedback.';
+  log('Gagnante : ' + cand.label, 'ok');
+  toast('Gagnante : ' + cand.label, 'ok');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DEBUG PANEL
+// ═══════════════════════════════════════════════════════════════
+function showDebugPanel(rawText, errorMessage) {
+  const box = $('debugBox');
+  const panel = $('rawPanel');
+  box.classList.remove('hidden');
+  panel.textContent = (errorMessage ? '⚠ ' + errorMessage + '\n\n' : '') + (rawText || '(réponse vide)');
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ORCHESTRATION
+// ═══════════════════════════════════════════════════════════════
+async function runRound(isRetry) {
+  if (!state.refImage) { toast('Charge une image', 'err'); return; }
+  if (!state.apiKeys.length) { toast('Valide tes clés', 'err'); return; }
+  if (state.running) { toast('Déjà en cours', 'warn'); return; }
+
+  state.running = true;
+  state.stopRequested = false;
+  $('startBtn').disabled = true;
+  $('retryBtn').disabled = true;
+  $('debugBox').classList.add('hidden');
+  $('candidatesWrap').classList.remove('hidden');
+  $('postActions').classList.remove('hidden');
+  $('exportBox').classList.add('hidden');
+  state.round++;
+
+  $('roundLabel').textContent = '#' + state.round;
+  $('roundTitle').textContent = `Ronde #${state.round} — ${BATCH_SIZE} candidats`;
+  $('candidates').innerHTML = '<div style="color:#666;padding:1rem;grid-column:1/-1">Analyse de l\'image en cours…</div>';
+  setProgress(5);
+
+  log(isRetry ? 'Raffinement ronde ' + state.round : 'Analyse initiale ronde 1', 'api');
+  let descriptions;
+  try {
+    descriptions = (isRetry && state.chosen)
+      ? await generateRefine(state.chosen)
+      : await generateRound1();
+  } catch (e) {
+    log('Analyse échouée : ' + e.message, 'err');
+    toast('Analyse échouée', 'err', 4000);
+    showDebugPanel(state.lastRawResponse, e.message);
+    state.running = false;
+    $('startBtn').disabled = false;
+    return;
+  }
+
+  log(descriptions.length + ' descriptions générées', 'ok');
+  setProgress(15);
+
+  state.candidates = descriptions.map(d => ({
+    id: 'c' + (++state.uid),
+    label: d.label, focus: d.focus, description: d.description, diff: d.diff || '',
+    url: null,
+    scores: { dreamsim: null, clip: null, dino: null, detail: null, face: null },
+    userScores: {}, userOverall: 0.5, flags: [], composite: 0
+  }));
+  state.chosen = null;
+  renderCandidates();
+
+  const nWorkers = Math.max(2, state.apiKeys.length * CONCURRENCY);
+  log('Génération des images (' + nWorkers + ' workers)', 'api');
+  state.taskQueue = state.candidates.slice();
+  await Promise.all(Array.from({ length: nWorkers }, () => imageWorker()));
+  log('Toutes les images générées', 'ok');
+  setProgress(60);
+
+  await scoreAllCandidates();
+  setProgress(100);
+
+  state.running = false;
+  $('startBtn').disabled = false;
+  $('actionHint').textContent = 'Note les images, coche les problèmes, puis choisis ta gagnante.';
+  const best = state.candidates[0];
+  log('Ronde ' + state.round + ' terminée · meilleur : ' + Math.round((best ? best.composite : 0) * 100) + '%', 'ok');
+  toast('Ronde ' + state.round + ' terminée', 'ok');
+}
+
+async function imageWorker() {
+  while (!state.stopRequested && state.taskQueue.length) {
+    const cand = state.taskQueue.shift();
+    if (!cand) break;
+    try {
+      const url = await apiImage(cand.description);
+      cand.url = url;
+      log('✔ ' + cand.label, 'ok');
+    } catch (e) {
+      if (e.message === 'Arrêt') return;
+      cand.url = 'error';
+      log('✘ ' + cand.label + ' : ' + e.message, 'err');
+    }
+    renderCandidates();
+    const done = state.candidates.filter(c => c.url).length;
+    setProgress(15 + (done / BATCH_SIZE) * 45);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportFinal() {
+  if (!state.chosen) { toast('Aucune gagnante', 'err'); return; }
+  const c = state.chosen;
+  const fp = state.fidelityProfile;
+  const txt = [
+    '════════ COPIE PARFAITE — PROMPT FINAL ════════',
+    'Mode : ' + (state.mode === 'face' ? 'Visage' : 'Œuvre d\'art'),
+    'Format : ' + state.imageSize,
+    'Ronde : #' + state.round,
+    'Version : ' + c.label + ' (' + c.focus + ')',
+    'Score composite : ' + Math.round(c.composite * 100) + '%',
+    '',
+    '════════ DESCRIPTION ════════',
+    c.description,
+    '',
+    '════════ PROFIL DE FIDÉLITÉ ════════',
+    fp.preferredLighting ? 'Éclairage préféré : ' + fp.preferredLighting : '',
+    fp.preferredPalette ? 'Palette préférée : ' + fp.preferredPalette : '',
+    fp.recurringFlags && fp.recurringFlags.length ? 'Problèmes récurrents à éviter : ' + fp.recurringFlags.join(', ') : '',
+    fp.successfulKeywords && fp.successfulKeywords.length ? 'Mots-clés efficaces : ' + fp.successfulKeywords.join(', ') : '',
+    '',
+    '════════ FEEDBACK UTILISATEUR ════════',
+    c.userScores && Object.keys(c.userScores).length ? Object.entries(c.userScores).map(([k, v]) => k + ': ' + v + '/5').join(' · ') : '',
+    c.flags && c.flags.length ? 'Flags : ' + c.flags.join(', ') : ''
+  ].filter(Boolean).join('\n');
+  $('exportText').value = txt;
+  $('exportBox').classList.remove('hidden');
+  $('exportBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function updateStartBtn() {
+  const btn = $('startBtn');
+  if (!btn) return;
+  btn.disabled = !(state.refImage && state.apiKeys.length && !state.running);
+}
+
+async function handleRefFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Fichier non image', 'err'); return; }
+  if (file.size > 30 * 1024 * 1024) { toast('Image trop lourde (>30 Mo)', 'err'); return; }
+
+  const dataUrl = await new Promise(res => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.readAsDataURL(file);
+  });
+  const img = await new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = dataUrl;
+  });
+  let { width: w, height: h } = img;
+  const s = Math.min(1, REF_MAX_SIDE / Math.max(w, h));
+  w = Math.max(1, Math.round(w * s));
+  h = Math.max(1, Math.round(h * s));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+  x.drawImage(img, 0, 0, w, h);
+  let out = c.toDataURL('image/jpeg', 0.9);
+  let q = 0.9;
+  while (out.length > 1.6 * 1024 * 1024 && q > 0.5) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+
+  state.refImage = out; state.refName = file.name;
+  try { sSet('cp_ref', JSON.stringify({ img: out, name: file.name })); } catch(e) {}
+  $('refImg').src = out;
+  $('refName').textContent = file.name;
+  $('refPreview').classList.remove('hidden');
+  log('Image chargée : ' + file.name, 'ok');
+  toast('Image chargée', 'ok');
+  updateStartBtn();
+}
+
+function bind() {
+  $('validateKeys').addEventListener('click', validateKeys);
+  $('clearKeys').addEventListener('click', () => {
+    $('keysInput').value = '';
+    state.apiKeys = []; state.replicateKey = '';
+    sDel('cp_keys'); sDel('cp_replicate');
+    setKeysStatus('', 'Aucune clé enregistrée');
+    updateRpmLabel(); updateStartBtn();
+    toast('Clés effacées', 'warn');
+  });
+
+  $('refInput').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) handleRefFile(f);
+    e.target.value = '';
+  });
+  $('clearRef').addEventListener('click', () => {
+    state.refImage = null; state.refName = null;
+    sDel('cp_ref');
+    $('refPreview').classList.add('hidden');
+    $('refImg').removeAttribute('src');
+    $('refName').textContent = '';
+    updateStartBtn();
+    toast('Image retirée', 'warn');
+  });
+
+  $('modeSelect').addEventListener('change', e => { state.mode = e.target.value; });
+  $('sizeSelect').addEventListener('change', e => { state.imageSize = e.target.value; });
+  $('userContext').addEventListener('input', e => { state.userContext = e.target.value; });
+
+  $('startBtn').addEventListener('click', () => runRound(false));
+  $('retryBtn').addEventListener('click', async () => {
+    if (!state.chosen) { toast('Choisis une gagnante', 'warn'); return; }
+    await updateFidelityProfile(state.chosen);
+    await runRound(true);
+  });
+
+  $('exportBtn').addEventListener('click', exportFinal);
+  $('copyExport').addEventListener('click', () => {
+    const ta = document.createElement('textarea');
+    ta.value = $('exportText').value;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    toast(ok ? 'Prompt copié' : 'Copie impossible', ok ? 'ok' : 'err');
+  });
+  $('closeExport').addEventListener('click', () => $('exportBox').classList.add('hidden'));
+
+  $('resetBtn').addEventListener('click', () => {
+    if (!confirm('Tout recommencer ?')) return;
+    state.round = 0; state.candidates = []; state.chosen = null; state.history = [];
+    state.fidelityProfile = { preferredLighting:'', preferredPalette:'', facePriorities:{}, recurringFlags:[], successfulKeywords:[] };
+    $('candidatesWrap').classList.add('hidden');
+    $('postActions').classList.add('hidden');
+    $('exportBox').classList.add('hidden');
+    $('historyBox').classList.add('hidden');
+    $('workingDesc').classList.add('hidden');
+    $('debugBox').classList.add('hidden');
+    $('roundLabel').textContent = '#0';
+    $('imgLabel').textContent = '0/8';
+    setProgress(0);
+    toast('Réinitialisé', 'warn');
+  });
+
+  // Debug panel
+  $('closeDebug').addEventListener('click', () => $('debugBox').classList.add('hidden'));
+  $('copyRaw').addEventListener('click', () => {
+    const ta = document.createElement('textarea');
+    ta.value = state.lastRawResponse || '';
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    toast(ok ? 'Réponse copiée' : 'Copie impossible', ok ? 'ok' : 'err');
+  });
+  $('retryAnalysis').addEventListener('click', () => {
+    $('debugBox').classList.add('hidden');
+    runRound(false);
+  });
+
+  // Console
+  $('consoleToggle').addEventListener('click', () => {
+    const b = $('consoleBody');
+    b.classList.toggle('hidden');
+    const isOpen = !b.classList.contains('hidden');
+    $('consoleLabel').textContent = (isOpen ? '▲' : '▼') + ' Console';
+    if (isOpen) {
+      b.innerHTML = state.logs.slice(-200).map(l => {
+        let html = `<div class="log-line log-${l.c}"><span class="t">${l.t}</span> ${esc(String(l.m).slice(0, 400))}</div>`;
+        if (l.raw) html += `<div class="log-raw">${esc(String(l.raw).slice(0, 1500))}</div>`;
+        return html;
+      }).join('');
+      b.scrollTop = b.scrollHeight;
+    }
+  });
+
+  // Restore
+  try {
+    const k = JSON.parse(sGet('cp_keys') || '[]');
+    if (Array.isArray(k) && k.length) {
+      state.apiKeys = k.filter(isValidAgnesKey);
+      $('keysInput').value = k.join('\n');
+      if (state.apiKeys.length) {
+        setKeysStatus('ok', state.apiKeys.length + ' clé(s) restaurée(s)');
+        updateRpmLabel();
+      }
+    }
+  } catch (e) {}
+  try {
+    const r = sGet('cp_replicate');
+    if (r && isValidReplicateKey(r)) state.replicateKey = r;
+  } catch (e) {}
+  try {
+    const ref = JSON.parse(sGet('cp_ref') || 'null');
+    if (ref && ref.img && typeof ref.img === 'string' && ref.img.startsWith('data:image/')) {
+      state.refImage = ref.img;
+      state.refName = ref.name || 'référence';
+      $('refImg').src = ref.img;
+      $('refName').textContent = state.refName;
+      $('refPreview').classList.remove('hidden');
+    }
+  } catch (e) {}
+
+  updateStartBtn();
+  updateRpmLabel();
+  log('Copie Parfaite prêt', 'ok');
+}
+
+bind();
+</script>
+</body>
+</html>
